@@ -35,7 +35,7 @@ const searchLowFaresValidate = (obj) => {
   const rootArrays = ['AirPricePoint', 'AirSegment', 'FareInfo', 'FlightDetails', 'Route'];
 
   rootArrays.forEach((name) => {
-    const airName = 'air:' + name + 'List';
+    const airName = `air:${name}List`;
     if (!_.isObject(obj[airName])) {
       throw new UError('PARSING_AIR_WRONG_TYPE', obj[airName]);
     }
@@ -124,11 +124,11 @@ function getPassengers(list, BookingTraveler) {
       throw new Error('Not all BookingTravelers present in list or wrong lookup keys provided');
     }
 
-    const name = traveler['common_' + this.uapi_version + ':BookingTravelerName'];
+    const name = traveler[`common_${this.uapi_version}:BookingTravelerName`];
 
         // SSR DOC parsing of passport data http://gitlab.travel-swift.com/galileo/galileocommand/blob/master/lib/command/booking.js#L84
         // TODO safety checks
-    const firstTraveler = utils.firstInObj(traveler['common_' + this.uapi_version + ':SSR']);
+    const firstTraveler = utils.firstInObj(traveler[`common_${this.uapi_version}:SSR`]);
     let ssr = [];
     if (firstTraveler) {
       ssr = firstTraveler.FreeText.split('/');
@@ -360,7 +360,7 @@ function airPriceRspPricingSolutionXML(obj) {
 
     pricingInfo['air:PassengerType'].push({
       $: {
-        BookingTravelerRef: 'P_' + index,
+        BookingTravelerRef: `P_${index}`,
         Code: passenger.ageCategory,
       },
     });
@@ -387,7 +387,7 @@ function airPriceRspPricingSolutionXML(obj) {
     lines.splice(-1, 1);
 
         // return
-    resultXml[root + '_XML'] = lines.join('\n');
+    resultXml[`${root}_XML`] = lines.join('\n');
   });
 
   return {
@@ -425,11 +425,11 @@ function extractBookings(obj) {
   const bookings = [];
   // var uapi_locators = _.pluck(record['air:AirReservation'], 'LocatorCode');
 
-  const travellers = record['common_' + this.uapi_version + ':BookingTraveler'];
+  const travellers = record[`common_${this.uapi_version}:BookingTraveler`];
   const reservations = record['universal:ProviderReservationInfo'];
 
   record['air:AirReservation'].forEach((booking) => {
-    const resKey = 'common_' + this.uapi_version + ':ProviderReservationInfoRef';
+    const resKey = `common_${this.uapi_version}:ProviderReservationInfoRef`;
     const providerInfo = reservations[booking[resKey]];
 
     if (!providerInfo) {
@@ -441,11 +441,11 @@ function extractBookings(obj) {
 
     const passengers = getPassengers.call(
       this,
-      booking['common_' + self.uapi_version + ':BookingTravelerRef'],
+      booking[`common_${self.uapi_version}:BookingTravelerRef`],
       travellers
     );
 
-    const supplierLocator = booking['common_' + this.uapi_version + ':SupplierLocator'] || {};
+    const supplierLocator = booking[`common_${this.uapi_version}:SupplierLocator`] || {};
 
     const newBooking = {
       type: 'uAPI',

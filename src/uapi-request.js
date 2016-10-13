@@ -114,16 +114,21 @@ module.exports = function (service, auth, reqType, rootObject,
 
     const validateSOAP = function (parsedXML) {
       if (parsedXML['SOAP:Fault']) {
-        if (debugMode) console.log('Parsed error response', JSON.stringify(parsedXML));
+        if (debugMode) {
+          console.log('Parsed error response', JSON.stringify(parsedXML));
+        }
         return errorHandler(parsedXML['SOAP:Fault']);
-      } else
-                if (debugMode > 1) console.log('Parsed response', JSON.stringify(parsedXML));
+      } else if (debugMode > 1) {
+        console.log('Parsed response', JSON.stringify(parsedXML));
+      }
 
       return parsedXML;
     };
 
     const handleSuccess = function (result) {
-      if (debugMode > 1) console.log('Returning result', JSON.stringify(result));
+      if (debugMode > 1) {
+        console.log('Returning result', JSON.stringify(result));
+      }
       return result;
     };
 

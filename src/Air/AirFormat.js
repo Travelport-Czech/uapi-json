@@ -174,17 +174,16 @@ function formatLowFaresSearch(searchRequest, searchResult) {
       const newPltCrr = priceInfo.PlatingCarrier;
       if (!platingCarrier) platingCarrier = newPltCrr;
       if (!platingCarrier === newPltCrr) {
-        throw new Error(
-          'Assert: Plating carriers do not coincide across all passenger reservations, old: '
-          + platingCarrier + ', new: ' + newPltCrr
-        );
+        const message = 'Plating carriers do not coincide across all passenger reservations';
+        const carriers = `old: ${platingCarrier}, new: ${newPltCrr}`;
+        throw new Error(`Assert: ${message}, ${carriers}`);
       }
       return newPltCrr;
     });
 
     if (searchRequest.debug) {
-      console.log('List of plating carriers for fare ' + fareKey + ': '
-        + JSON.stringify(allPltCrr));
+      const carriersJson = JSON.stringify(allPltCrr);
+      console.log(`List of plating carriers for fare ${fareKey}: ${carriersJson}`);
     }
 
     const firstKey = _.first(Object.keys(price['air:AirPricingInfo']));
@@ -228,8 +227,9 @@ function formatLowFaresSearch(searchRequest, searchResult) {
 
         code = list[0];
         if (!list[0] || list.length !== 1) { // TODO throw error
-          console.log('Warning: different categories '
-            + list.join() + ' in single fare calculation ' + key + ' in fare ' + fareKey);
+          const fareDescription = `single fare calculation ${key} in fare ${fareKey}`;
+          const message = `Different categories ${list.join()} in a ${fareDescription}`;
+          console.log(`Warning: ${message}`);
         }
         passengerCounts[code] = count;
       } else {
@@ -241,7 +241,8 @@ function formatLowFaresSearch(searchRequest, searchResult) {
     });
 
     if (_.size(passengerCategories) !== _.size(price['air:AirPricingInfo'])) {
-      console.log('Warning: duplicate categories in passengerCategories map for fare ' + fareKey);
+      const message = `Duplicate categories in passengerCategories map for fare ${fareKey}`;
+      console.log(`Warning: ${message}`);
     }
 
     const result = {
