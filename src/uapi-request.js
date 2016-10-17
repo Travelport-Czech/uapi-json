@@ -7,7 +7,7 @@ const _ = require('lodash');
 
 // making default functions work with promises
 const readFile = Promise.denodeify(fs.readFile);
-const UError = require('./errors');
+const ServiceErrors = require('./Errors/ServiceErrors');
 const configInit = require('./config');
 
 /**
@@ -30,18 +30,19 @@ module.exports = function (service, auth, reqType, rootObject,
   }
 
   if (service.length <= 0) {
-    throw new UError('UNDEFINED_SERVICE_URL');
+    throw new ServiceErrors.ServiceUrlMissing();
   }
 
   if (!auth || auth.username === undefined || auth.password === undefined) {
-    throw new UError('UNDEFINED_AUTH_DATA');
+    throw new ServiceErrors.AuthDataMissing();
   }
 
   if (reqType === undefined) {
-    throw new UError('UNDEFINED_REQUEST_TYPE');
+    throw new ServiceErrors.RequestTypeUndefined();
   }
+  // @todo: make static index of services available
   if (fs.existsSync(reqType) === false) {
-    throw new UError('NO_TEMPLATE_FILE', { msg: reqType });
+    throw new ServiceErrors.TemplateFileMissing(null, { requestType: reqType });
   }
 
   return function serviceFunc(params) {
@@ -51,7 +52,7 @@ module.exports = function (service, auth, reqType, rootObject,
 
     const validateInput = (resolve, reject) => {
       if (_.isEmpty(params)) {
-        reject(new UError('EMPTY_PARAMS'));
+        reject(new ServiceErrors.ParamsMissing());
       }
       params = validateFunction(params);
       resolve(reqType);
@@ -87,9 +88,9 @@ module.exports = function (service, auth, reqType, rootObject,
           } else {
             if (debugMode) console.log('Error Response SOAP: ', JSON.stringify(error));
             if (error.code === 'ETIMEDOUT') {
-              reject(new UError('SOAP_REQUEST_TIMEOUT'));
+              reject(new ServiceErrors.SoapRequestTimeout());
             } else {
-              reject(new UError('SOAP_REQUEST_ERROR'));
+              reject(new ServiceErrors.SoapRequestError());
             }
           }
         });
@@ -108,8 +109,9 @@ module.exports = function (service, auth, reqType, rootObject,
         return uParser.parse(response.body);
       }
 
-      // TODO parse JSON errors
-      throw new UError('UNDEFINED_AUTH_DATA', data); // TODO change into UAPI_SERVER_ERROR, etc
+      // @todo: parse JSON errors
+      // @todo: change into UAPI_SERVER_ERROR, etc
+      throw new ServiceErrors.AuthDataMissing(null, data);
     };
 
     const validateSOAP = function (parsedXML) {
@@ -134,7 +136,8 @@ module.exports = function (service, auth, reqType, rootObject,
             .then(sendRequest)
             .then(parseResponse)
             .then(validateSOAP)
-            .then(parseFunction.bind(uParser))// TODO merge Hotels
+            // @todo: merge Hotels
+            .then(parseFunction.bind(uParser))
             .then(handleSuccess);
   };
 };
