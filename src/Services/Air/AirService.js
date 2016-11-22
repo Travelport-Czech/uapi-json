@@ -5,6 +5,7 @@ import { AirRuntimeError } from './AirErrors';
 
 module.exports = (settings) => {
   const { auth, debug, production } = settings;
+  const overridePcc = settings.emulatePcc || false;
   return {
     shop(options) {
       const AirService = airServiceInternal(auth, debug, production);
@@ -17,7 +18,7 @@ module.exports = (settings) => {
     },
 
     book(options) {
-      const AirService = airServiceInternal(auth, debug, production);
+      const AirService = airServiceInternal(auth, debug, production, overridePcc);
       return AirService.airPricePricingSolutionXML(options).then((data) => {
         const bookingParams = Object.assign({}, {
           passengers: options.passengers,

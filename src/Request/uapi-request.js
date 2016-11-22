@@ -22,10 +22,11 @@ const readFile = Promise.denodeify(fs.readFile);
  * @param  {function} errorHandler    function that gets SOAP:Fault object and handle error
  * @param  {function} parseFunction    function for transforming json soap object to normal object
  * @param  {boolean} debugMode        true - log requests, false - dont
+ * @param  (string) overridePcc       pcc to be overriden with
  * @return {Promise}                  returning promise for best error handling ever)
  */
 module.exports = function (service, auth, reqType, rootObject,
-  validateFunction, errorHandler, parseFunction, debugMode = false) {
+  validateFunction, errorHandler, parseFunction, debugMode = false, overridePcc = false) {
   const config = configInit(auth.region || 'emea');
 
   // Logging
@@ -59,6 +60,7 @@ module.exports = function (service, auth, reqType, rootObject,
       params.TargetBranch = auth.targetBranch;
       params.Username = auth.username;
       params.pcc = auth.pcc;
+      params.overridePcc = overridePcc;
       const renderedObj = template(params);
       return renderedObj;
     };

@@ -5,7 +5,7 @@ const getConfig = require('../../config');
 
 const templatesDir = `${__dirname}/templates`;
 
-module.exports = function (auth, debug, production) {
+module.exports = function (auth, debug, production, overridePcc = false) {
   const config = getConfig(auth.region, production);
   return {
     searchLowFares: uApiRequest(
@@ -55,7 +55,8 @@ module.exports = function (auth, debug, production) {
       AirValidator.AIR_CREATE_RESERVATION_REQUEST,
       AirParser.AIR_ERRORS,
       AirParser.AIR_CREATE_RESERVATION_REQUEST,
-      debug
+      debug,
+      overridePcc
     ),
     ticket: uApiRequest(
       config.AirService.url,
